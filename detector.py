@@ -9,7 +9,7 @@ from scipy import fft
 alarm_freq = 3500
 bandwidth = 50
 volume_gate = .5
-alert_gate = 5
+alert_window = 8
 
 
 sr = 44100
