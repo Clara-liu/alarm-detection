@@ -1,3 +1,2 @@
 numpy==1.23.3
-python3-pyaudio==0.2.12
 scipy==1.9.1
