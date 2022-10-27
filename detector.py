@@ -96,7 +96,7 @@ if __name__ == '__main__':
     if not test:
         p = pyaudio.PyAudio()
         _stream = p.open(
-            format=pyaudio.paInt16,
+            format=pyaudio.paFloat32,
             channels=1,
             rate=sr,
             input=True,
@@ -110,7 +110,7 @@ if __name__ == '__main__':
             _stream.start_stream()
             raw_sig = []
             for i in range(0, int((sr/n_samples)*listen_dur)):
-                data = np.frombuffer(_stream.read(n_samples, exception_on_overflow=False), dtype=np.short)
+                data = np.frombuffer(_stream.read(n_samples, exception_on_overflow=False), dtype=np.float32)
                 raw_sig =+ data
             detector.detect(raw_sig)
             _stream.stop_stream()
