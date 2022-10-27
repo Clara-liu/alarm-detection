@@ -59,9 +59,9 @@ class Detector:
         if within_bw and above_gate:
             self.alarm_record.append('Beep')
             self.beeped = True
-            logging.info(f'Detected loudness {fft_result["loudest_intensity"]} at {fft_result["loudest_freq"]} Hz.')
         else:
             self.beeped = False
+        logging.info(f'Loudness {fft_result["loudest_intensity"]} at {fft_result["loudest_freq"]} Hz.')
     
     def alarm(self):
         if self.beeped and len(self.alarm_record) >= self.alert_tolerance:
