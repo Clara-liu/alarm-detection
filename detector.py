@@ -59,7 +59,7 @@ class Detector:
         if within_bw and above_gate:
             self.alarm_record.append('Beep')
             self.beeped = True
-            logging.info(f'Detected loudness {fft_result["loudest_intensity"]} aa {fft_result["loudest_freq"]} Hz.')
+            logging.info(f'Detected loudness {fft_result["loudest_intensity"]} at {fft_result["loudest_freq"]} Hz.')
         else:
             self.beeped = False
     
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 
     sr = 44100
     n_samples = 4096
-    test = True
+    test = False
 
     logging.basicConfig(level=logging.INFO)
     detector = Detector(alarm_freq, bandwidth, volume_gate, alert_window, sr, n_samples)
@@ -111,7 +111,7 @@ if __name__ == '__main__':
             raw_sig = []
             for i in range(0, int((sr/n_samples)*listen_dur)):
                 data = np.frombuffer(_stream.read(n_samples, exception_on_overflow=False), dtype=np.short)
-                raw_sig.append(data)
+                raw_sig =+ data
             detector.detect(raw_sig)
             _stream.stop_stream()
         ####### testing ########
