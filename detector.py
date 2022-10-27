@@ -80,9 +80,11 @@ class Detector:
 if __name__ == '__main__':
     alarm_freq = 3000
     bandwidth = 80
-    volume_gate = .1
+    volume_gate = .05
     alert_window = 5
+    listen_dur = 0.1
 
+    device_id = 1
 
     sr = 44100
     n_samples = 4096
@@ -91,30 +93,38 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     detector = Detector(alarm_freq, bandwidth, volume_gate, alert_window, sr, n_samples)
     if not test:
-        pa = pyaudio.PyAudio()
-        _stream = pa.open(
+        p = pyaudio.PyAudio()
+        _stream = p.open(
             format=pyaudio.paInt16,
             channels=1,
             rate=sr,
             input=True,
-            frames_per_buffer=n_samples
+            frames_per_buffer=n_samples,
+            input_device_index=device_id
         )
     else:
         logging.info('Entering testing mode')
     while True:
         if not test:
-            pass
+            _stream.start_stream()
+            raw_sig = []
+            for i in range(0, int((sr/n_samples)*listen_dur)):
+                data = np.frombuffer(_stream.read(n_samples, exception_on_overflow=False), dtype=np.short)
+                raw_sig.append(data)
+            detector.detect(raw_sig)
+            _stream.stop_stream()
+        ####### testing ########
         else:
             trigger_beep = np.random.choice(2, 1, p=[0.3, 0.7]).item()
             if trigger_beep:
                 freq = alarm_freq
             else:
                 freq = 2000
-            print(trigger_beep)
+            logging.info(f'trigger: {trigger_beep}')
             sig =_generate_sine(freq, sr, n_samples/sr)*5
             detector.detect(sig)
-            text_alarm = detector.alarm()
-            if text_alarm:
-                logging.info('Text for positive alarm detection!')
-                ########################## text ##########################
-        sleep(0.03)
+        text_alarm = detector.alarm()
+        if text_alarm:
+            logging.info('Text for positive alarm detection!')
+            ########################## text ##########################
+        sleep(0.99)
