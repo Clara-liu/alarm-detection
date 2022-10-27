@@ -1,4 +1,3 @@
-import time
 import logging
 import argparse
 import pyaudio
@@ -8,7 +7,6 @@ from time import sleep
 
 
 def _fft(signal, sr):
-    # scale to between 0 and 1 if signal is 16 bit numbers
     yf = fft.rfft(signal)
     n = len(signal) 
     yf = 2/n * np.abs(yf[0:n//2])
@@ -27,7 +25,7 @@ def _generate_sine(freq, sr, dur):
 
     :param freq: frequency in Hz of sine wave
     :type freq: int or float
-    :param sr: sampling rate
+    :param sr: sample per second
     :type sr: int
     :param dur: duration in seconds
     :type dur: float
@@ -81,8 +79,8 @@ class Detector:
 
 if __name__ == '__main__':
     alarm_freq = 3000
-    bandwidth = 80
-    volume_gate = .1
+    bandwidth = 50
+    volume_gate = .8
     alert_window = 5
     listen_dur = 0.1
 
@@ -129,4 +127,4 @@ if __name__ == '__main__':
         if text_alarm:
             logging.info('Text for positive alarm detection!')
             ########################## text ##########################
-        sleep(0.99)
+        sleep(0.1)
