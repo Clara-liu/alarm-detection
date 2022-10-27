@@ -38,7 +38,7 @@ def _generate_sine(freq, sr, dur):
 
 
 class Detector:
-    def __init__(self, alarm_freq, bw, vol_gate, alert_win, sr, n_samples):
+    def __init__(self, alarm_freq, bw, vol_gate, alert_win, sr, n_samples, verbose=True):
         self.sr = sr
         self.n = n_samples
         self.alert_tolerance = alert_win
@@ -47,6 +47,7 @@ class Detector:
         self.gate = vol_gate
         self.alarm_record = []
         self.beeped = False
+        self.verbose = verbose
 
     def reset(self):
         self.alarm_record = []
@@ -60,7 +61,8 @@ class Detector:
             self.beeped = True
         else:
             self.beeped = False
-        logging.info(f'Loudness {fft_result["loudest_intensity"]} at {fft_result["loudest_freq"]} Hz.')
+        if self.verbose:
+            logging.info(f'Loudness {fft_result["loudest_intensity"]} at {fft_result["loudest_freq"]} Hz.')
     
     def alarm(self):
         if self.beeped and len(self.alarm_record) >= self.alert_tolerance:
@@ -80,7 +82,7 @@ class Detector:
 if __name__ == '__main__':
     alarm_freq = 3000
     bandwidth = 50
-    volume_gate = .8
+    volume_gate = .1
     alert_window = 5
     listen_dur = 0.1
 
@@ -88,10 +90,11 @@ if __name__ == '__main__':
 
     sr = 44100
     n_samples = 4096
-    test = False
+    test = True
+    verbose = True
 
     logging.basicConfig(level=logging.INFO)
-    detector = Detector(alarm_freq, bandwidth, volume_gate, alert_window, sr, n_samples)
+    detector = Detector(alarm_freq, bandwidth, volume_gate, alert_window, sr, n_samples, verbose=verbose)
     if not test:
         p = pyaudio.PyAudio()
         _stream = p.open(
@@ -121,10 +124,11 @@ if __name__ == '__main__':
             else:
                 freq = 2000
             logging.info(f'trigger: {trigger_beep}')
-            sig =_generate_sine(freq, sr, n_samples/sr)*5
+            sig =_generate_sine(freq, sr, n_samples/sr)
             detector.detect(sig)
         text_alarm = detector.alarm()
         if text_alarm:
             logging.info('Text for positive alarm detection!')
+            sleep(600)
             ########################## text ##########################
-        sleep(0.1)
+        sleep(0.9)
