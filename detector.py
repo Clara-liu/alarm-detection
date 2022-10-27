@@ -7,7 +7,7 @@ from scipy import fft
 from time import sleep
 
 
-def _fft(signal, sr, normalise=True):
+def _fft(signal, sr, normalise=False):
     # scale to between 0 and 1 if signal is 16 bit numbers
     norm_sig = (signal/32768.0) if normalise else signal
     yf = fft.rfft(norm_sig)
