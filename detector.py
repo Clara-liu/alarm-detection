@@ -7,14 +7,15 @@ from scipy import fft
 from time import sleep
 
 
-def _fft(signal, sr, normalise=False):
+def _fft(signal, sr):
     # scale to between 0 and 1 if signal is 16 bit numbers
-    norm_sig = (signal/32768.0) if normalise else signal
-    yf = fft.rfft(norm_sig)
-    xf = fft.rfftfreq(len(norm_sig), 1/sr)
+    yf = fft.rfft(signal)
+    n = len(signal) 
+    yf = 2/n * np.abs(yf[0:n//2])
+    xf = fft.rfftfreq(n, 1/sr)
     result = dict(
-        loudest_freq = xf[np.argmax(np.abs(yf))],
-        loudest_intensity = np.abs(yf).max(),
+        loudest_freq = xf[np.argmax(yf)],
+        loudest_intensity = yf.max(),
         intensity = yf,
         freq = xf
     )
