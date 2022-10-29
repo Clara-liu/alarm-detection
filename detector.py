@@ -7,10 +7,10 @@ from time import sleep
 
 
 def _fft(signal, sr):
-    yf = fft.rfft(signal)
+    yf = fft.fft(signal)
     n = len(signal) 
     yf = 2/n * np.abs(yf[0:n//2])
-    xf = fft.rfftfreq(n, 1/sr)
+    xf = fft.fftfreq(n, 1/sr)[0:n//2]
     result = dict(
         loudest_freq = xf[np.argmax(yf)],
         loudest_intensity = yf.max(),
@@ -79,23 +79,71 @@ class Detector:
             return False
 
 
-if __name__ == '__main__':
-    alarm_freq = 3000
-    bandwidth = 50
-    volume_gate = .1
-    alert_window = 5
-    listen_dur = 0.1
+def _args():
+    parser = argparse.ArgumentParser(
+        description = 'Audio alarm detection'
+    )
 
-    device_id = 1
+    parser.add_argument(
+        '--alarm-freq',
+        type=int,
+        help='Frequency of the alarm to detect',
+        required=True
+    )
+
+    parser.add_argument(
+        '--band-width',
+        type=int,
+        help='Error margin is equal to the alarm freq plus and minus band width',
+        default=50
+    )
+
+    parser.add_argument(
+        '--volume-gate',
+        type=float,
+        help='Alarm is detected when the loudest frequency is louder than this threshold.',
+        default=.1
+    )
+
+    parser.add_argument(
+        '--alert-win',
+        type=int,
+        help='How many beeps before alerting.',
+        default=5
+    )
+
+    parser.add_argument(
+        '--mic-id',
+        type=int,
+        help='The device ID of the USB microphone.',
+        required=True
+    )
+
+    parser.add_argument(
+        '--test-mode',
+        action='store_true'
+    )
+
+    parser.add_argument(
+        '--verbose',
+        action='store_true'
+    )
+
+    args = parser.parse_args()
+    return args
+
+
+
+if __name__ == '__main__':
+    listen_dur = 0.1
 
     sr = 44100
     n_samples = 4096
-    test = True
-    verbose = True
+    args = _args()
 
     logging.basicConfig(level=logging.INFO)
-    detector = Detector(alarm_freq, bandwidth, volume_gate, alert_window, sr, n_samples, verbose=verbose)
-    if not test:
+    detector = Detector(args.alarm_freq, args.band_width, args.volume_gate, args.alert_win, sr, n_samples, verbose=args.verbose)
+    if not args.test_mode:
         p = pyaudio.PyAudio()
         _stream = p.open(
             format=pyaudio.paFloat32,
@@ -103,12 +151,12 @@ if __name__ == '__main__':
             rate=sr,
             input=True,
             frames_per_buffer=n_samples,
-            input_device_index=device_id
+            input_device_index=args.mic_id
         )
     else:
         logging.info('Entering testing mode')
     while True:
-        if not test:
+        if not args.test_mode:
             _stream.start_stream()
             raw_sig = []
             for i in range(0, int((sr/n_samples)*listen_dur)):
@@ -116,19 +164,19 @@ if __name__ == '__main__':
                 raw_sig =+ data
             detector.detect(raw_sig)
             _stream.stop_stream()
-        ####### testing ########
+        ####### testing block ########
         else:
             trigger_beep = np.random.choice(2, 1, p=[0.3, 0.7]).item()
             if trigger_beep:
-                freq = alarm_freq
+                freq = args.alarm_freq
             else:
                 freq = 2000
             logging.info(f'trigger: {trigger_beep}')
-            sig =_generate_sine(freq, sr, n_samples/sr)
+            sig =_generate_sine(freq, sr, listen_dur)
             detector.detect(sig)
         text_alarm = detector.alarm()
         if text_alarm:
             logging.info('Text for positive alarm detection!')
-            sleep(600)
+            sleep(300)
             ########################## text ##########################
         sleep(0.9)
