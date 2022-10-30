@@ -9,7 +9,7 @@ This script can be used to detect audio alarms and alert you via a telegram text
 On the device (e.g. ssh into rasp pi), do:
 1. Install PyAudio with `sudo apt install python3-pyaudio`. See [here](https://pypi.org/project/PyAudio/) for alternative methods.
 2. Install dependencies with `pip install -r requirements.txt`.
-3. Create a yaml file like below. For instructions on how to obtain a bot token and chat ID, see [here](https://medium.com/codex/using-python-to-send-telegram-messages-in-3-simple-steps-419a8b5e5e2).
+3. Create a yaml file like below. For instructions on how to obtain a bot token and chat ID with Telegram, see [here](https://medium.com/codex/using-python-to-send-telegram-messages-in-3-simple-steps-419a8b5e5e2).
 ```
 token: <YOUR BOT TOKEN>
 chat_id: <A CHAT ID>
