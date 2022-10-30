@@ -78,7 +78,8 @@ class Detector:
             return False
         else:
             self.reset()
-            logging.info('Alarm has been reset after no beep.')
+            if self.verbose:
+                logging.info('Alarm has been reset after no beep.')
             return False
 
 
