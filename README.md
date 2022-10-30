@@ -1,5 +1,5 @@
 # Alarm detection
-This script can be used to detect audio alarms and alert you via text.
+This script can be used to detect audio alarms and alert you via a telegram text.
 ## Requirements
 - A USB microphone
 - A device such as a raspberry pi for compute
@@ -9,11 +9,16 @@ This script can be used to detect audio alarms and alert you via text.
 On the device (e.g. ssh into rasp pi), do:
 1. Install PyAudio with `sudo apt install python3-pyaudio`. See [here](https://pypi.org/project/PyAudio/) for alternative methods.
 2. Install dependencies with `pip install -r requirements.txt`.
+3. Create a yaml file like below. For instructions on how to obtain a bot token and chat ID, see [here](https://medium.com/codex/using-python-to-send-telegram-messages-in-3-simple-steps-419a8b5e5e2).
+```
+token: <YOUR BOT TOKEN>
+chat_id: <A CHAT ID>
+```
 ## Usage
 Run `python detection.py --help` for manual:
 ```
 usage: detector.py [-h] --alarm-freq ALARM_FREQ [--band-width BAND_WIDTH] [--volume-gate VOLUME_GATE] [--alert-win ALERT_WIN] --mic-id MIC_ID [--test-mode]
-                   [--verbose]
+                   [--verbose] --telegram-file TELEGRAM_FILE
 
 Audio alarm detection
 
@@ -28,11 +33,13 @@ optional arguments:
   --alert-win ALERT_WIN
                         How many beeps before alerting.
   --mic-id MIC_ID       The device ID of the USB microphone.
-  --test-mode
-  --verbose
+  --test-mode           whether to use testing mode.
+  --verbose             Whether to log each detection.
+  --telegram-file TELEGRAM_FILE
+                        Path to file containing info on telegram bot.
 ```
-### arguments
-Only two are *not* optional: `--alarm-freq` and `--mic-id`.
+### Arguments
+Only three are *not* optional: `--alarm-freq`, `--mic-id` and `--telegram-file`.
 
 - **--alarm-freq**: The frequency of your alarm tone. In the UK it is usually 3000 Hz. You can visualise the spectrogram of your alarm signal with software like Audacity ot Praat.
 - **--band-width**: The error margin for alarm detection.
@@ -40,4 +47,5 @@ Only two are *not* optional: `--alarm-freq` and `--mic-id`.
 - **--alert-win**: Alert is sent when the detector detects the presence of an alarm consecutively for this amount of times. You can play with this parameter to adjust the sensitivity of the detector.
 - **--mic-id**: The ID of your USB microphone according to Pyaudio. You can run `python utils/get_devices.py` to list all the devices available.
 - **--test-mode**: Whether to enter test mode.
-- **--verbose**: Whether to log details of each detection. 
+- **--verbose**: Whether to log details of each detection.
+- **--telegram-file**: Path to a yaml file containing information on your telegram bot and chat ID. This should either be an absolute path or relative to this folder.

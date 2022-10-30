@@ -1,9 +1,12 @@
 import logging
 import argparse
 import pyaudio
+import sys
 import numpy as np
 from scipy import fft
+from os import path
 from time import sleep
+from utils import telegram_bot
 
 
 def _fft(signal, sr):
@@ -121,12 +124,21 @@ def _args():
 
     parser.add_argument(
         '--test-mode',
+        help='whether to use testing mode.',
         action='store_true'
     )
 
     parser.add_argument(
         '--verbose',
+        help='Whether to log each detection.',
         action='store_true'
+    )
+
+    parser.add_argument(
+        '--telegram-file',
+        type=str,
+        required=True,
+        help='Path to file containing info on telegram bot.'
     )
 
     args = parser.parse_args()
@@ -140,9 +152,13 @@ if __name__ == '__main__':
     sr = 44100
     n_samples = 4096
     args = _args()
+    if not path.exists(args.telegram_bot):
+        sys.exit('Cannot find yaml file for telegram.')
 
     logging.basicConfig(level=logging.INFO)
+
     detector = Detector(args.alarm_freq, args.band_width, args.volume_gate, args.alert_win, sr, n_samples, verbose=args.verbose)
+    
     if not args.test_mode:
         p = pyaudio.PyAudio()
         _stream = p.open(
@@ -177,6 +193,7 @@ if __name__ == '__main__':
         text_alarm = detector.alarm()
         if text_alarm:
             logging.info('Text for positive alarm detection!')
+            telegram_bot.text_telegram(args.telegram_file)
             sleep(300)
             ########################## text ##########################
         sleep(0.9)
