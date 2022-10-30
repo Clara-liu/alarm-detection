@@ -152,13 +152,13 @@ if __name__ == '__main__':
     sr = 44100
     n_samples = 4096
     args = _args()
-    if not path.exists(args.telegram_bot):
+    if not path.exists(args.telegram_file):
         sys.exit('Cannot find yaml file for telegram.')
 
     logging.basicConfig(level=logging.INFO)
 
     detector = Detector(args.alarm_freq, args.band_width, args.volume_gate, args.alert_win, sr, n_samples, verbose=args.verbose)
-    
+
     if not args.test_mode:
         p = pyaudio.PyAudio()
         _stream = p.open(
