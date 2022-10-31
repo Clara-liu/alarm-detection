@@ -14,23 +14,6 @@ On the device (e.g. ssh into rasp pi), do:
    token: <YOUR BOT TOKEN>
    chat_id: <A CHAT ID>
    ```
-
-### System Service
-For ease of installation, a systemd service file is available: [systemd/alarm-detection.service](./systemd/alarm-detection.service).
-
-This service file assumes that your detection script lives in `/opt/alarm-detection`, modify `WorkingDirectory` if this isn't the case.
-
-Modify the `ExecStart` with the arguments you want to use.
-
-Copy the systemd service file to `/etc/systemd/system` and start the service
-```bash
-sudo systemctl start alarm-detection
-```
-and enable to automatically start on boot
-```bash
-sudo systemctl enable alarm-detection
-```
-
 ## Usage
 Run `python detection.py --help` for manual:
 ```
@@ -66,3 +49,18 @@ Only three are *not* optional: `--alarm-freq`, `--mic-id` and `--telegram-file`.
 - **--test-mode**: Whether to enter test mode.
 - **--verbose**: Whether to log details of each detection.
 - **--telegram-file**: Path to a yaml file containing information on your telegram bot and chat ID. This should either be an absolute path or relative to this folder.
+## System Service
+For ease of installation, a systemd service file is available: [systemd/alarm-detection.service](./systemd/alarm-detection.service).
+
+This service file assumes that the path to your detection repo is `/opt/alarm-detection`, modify `WorkingDirectory` if this isn't the case.
+
+Modify the `ExecStart` with the arguments you want to use.
+
+Copy the systemd service file to `/etc/systemd/system` and start the service
+```bash
+sudo systemctl start alarm-detection
+```
+and enable automatically start on boot
+```bash
+sudo systemctl enable alarm-detection
+```
