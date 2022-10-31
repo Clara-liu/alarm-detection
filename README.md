@@ -10,10 +10,27 @@ On the device (e.g. ssh into rasp pi), do:
 1. Install PyAudio with `sudo apt install python3-pyaudio`. See [here](https://pypi.org/project/PyAudio/) for alternative methods.
 2. Install dependencies with `pip install -r requirements.txt`.
 3. Create a yaml file like below. For instructions on how to obtain a bot token and chat ID with Telegram, see [here](https://medium.com/codex/using-python-to-send-telegram-messages-in-3-simple-steps-419a8b5e5e2).
+   ```yaml
+   token: <YOUR BOT TOKEN>
+   chat_id: <A CHAT ID>
+   ```
+
+### System Service
+For ease of installation, a systemd service file is available: [systemd/alarm-detection.service](./systemd/alarm-detection.service).
+
+This service file assumes that your detection script lives in `/opt/alarm-detection`, modify `WorkingDirectory` if this isn't the case.
+
+Modify the `ExecStart` with the arguments you want to use.
+
+Copy the systemd service file to `/etc/systemd/system` and start the service
+```bash
+sudo systemctl start alarm-detection
 ```
-token: <YOUR BOT TOKEN>
-chat_id: <A CHAT ID>
+and enable to automatically start on boot
+```bash
+sudo systemctl enable alarm-detection
 ```
+
 ## Usage
 Run `python detection.py --help` for manual:
 ```

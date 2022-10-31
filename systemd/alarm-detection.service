@@ -1,0 +1,13 @@
+[Unit]
+Description=Detect audio alarms and alert you via a telegram text
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/opt/alarm-detection
+ExecStart=/usr/bin/python detector.py --alarm-freq 3000 --mic-id 1 --telegram-file telegram.yaml
+
+[Install]
+WantedBy=multi-user.target
