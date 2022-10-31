@@ -16,13 +16,13 @@ On the device (e.g. ssh into rasp pi), do:
    ```
 
 ### System Service
-For ease of installation, a systemd service file is available in the  [systemd](./systemd/) folder.
+For ease of installation, a systemd service file is available: [systemd/alarm-detection.service](./systemd/alarm-detection.service).
 
-This service file assumes that your script lives in `/opt/alarm-detection`, modify `WorkingDirectory` if this isn't the case.
+This service file assumes that your detection script lives in `/opt/alarm-detection`, modify `WorkingDirectory` if this isn't the case.
 
 Modify the `ExecStart` with the arguments you want to use.
 
-Copy the file to `/etc/systemd/system` and start the service
+Copy the systemd service file to `/etc/systemd/system` and start the service
 ```bash
 sudo systemctl start alarm-detection
 ```
