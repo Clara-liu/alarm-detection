@@ -203,4 +203,4 @@ if __name__ == '__main__':
             telegram_bot.text_telegram(args.telegram_file)
             sleep(300)
             ########################## text ##########################
-        sleep(0.9)
+        sleep(0.5)
