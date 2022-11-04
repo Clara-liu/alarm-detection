@@ -156,7 +156,9 @@ if __name__ == '__main__':
     if not path.exists(args.telegram_file):
         sys.exit('Cannot find yaml file for telegram.')
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',
+                        level=logging.INFO,
+                        datefmt='%Y-%m-%d %H:%M:%S')
 
     detector = Detector(args.alarm_freq, args.band_width, args.volume_gate, args.alert_win, sr, n_samples, verbose=args.verbose)
 
