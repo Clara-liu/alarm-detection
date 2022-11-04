@@ -9,7 +9,9 @@ from time import sleep
 from utils import telegram_bot
 
 
-def _fft(signal, sr):
+def _fft(signal, sr, normalise):
+    if normalise:
+        signal = signal/32768.0
     yf = fft.fft(signal)
     n = len(signal) 
     yf = 2/n * np.abs(yf[0:n//2])
@@ -55,8 +57,8 @@ class Detector:
     def reset(self):
         self.alarm_record = []
     
-    def detect(self, sig):
-        fft_result = _fft(sig, self.sr)
+    def detect(self, sig, normalise):
+        fft_result = _fft(sig, self.sr, normalise)
         within_bw = (fft_result['loudest_freq'] < (self.alarm_freq + self.bw)) and (fft_result['loudest_freq'] > (self.alarm_freq - self.bw))
         above_gate = fft_result['loudest_intensity'] > self.gate
         if within_bw and above_gate:
@@ -165,23 +167,25 @@ if __name__ == '__main__':
     if not args.test_mode:
         p = pyaudio.PyAudio()
         _stream = p.open(
-            format=pyaudio.paFloat32,
+            format=pyaudio.paInt16,
             channels=1,
             rate=sr,
             input=True,
             frames_per_buffer=n_samples,
             input_device_index=args.mic_id
         )
+        normalise = True
     else:
         logging.info('Entering testing mode')
+        normalise = False
     while True:
         if not args.test_mode:
             _stream.start_stream()
             raw_sig = []
             for i in range(0, int((sr/n_samples)*listen_dur)):
-                data = np.frombuffer(_stream.read(n_samples, exception_on_overflow=False), dtype=np.float32)
+                data = np.frombuffer(_stream.read(n_samples, exception_on_overflow=False), dtype=np.int16)
                 raw_sig =+ data
-            detector.detect(raw_sig)
+            detector.detect(raw_sig, normalise)
             _stream.stop_stream()
         ####### testing block ########
         else:
@@ -189,10 +193,10 @@ if __name__ == '__main__':
             if trigger_beep:
                 freq = args.alarm_freq
             else:
-                freq = 2000
+                freq = args.alarm_freq - 2.0*band_width
             logging.info(f'trigger: {trigger_beep}')
             sig =_generate_sine(freq, sr, listen_dur)
-            detector.detect(sig)
+            detector.detect(sig, normalise)
         text_alarm = detector.alarm()
         if text_alarm:
             logging.info('Text for positive alarm detection!')
